@@ -1,33 +1,21 @@
 import path from 'path';
 import fs from 'fs';
-import _ from 'lodash';
 import parse from './parsers.js';
+import buildTree from './treeBuilder.js';
+import stylish from './stylish.js';
+
+const getFullPath = (filepath) => path.resolve(process.cwd(), filepath);
+const extractFormat = (filepath) => path.extname(filepath).slice(1);
+const getData = (filepath) => parse(fs.readFileSync(filepath, 'utf-8'), extractFormat(filepath));
 
 const gendiff = (filepath1, filepath2) => {
-  const fullFilePath1 = path.resolve(process.cwd(), filepath1);
-  const fullFilePath2 = path.resolve(process.cwd(), filepath2);
+  const fullFilePath1 = getFullPath(filepath1);
+  const fullFilePath2 = getFullPath(filepath2);
 
-  const extractFormat = (filepath) => path.extname(filepath).slice(1);
+  const data1 = getData(fullFilePath1);
+  const data2 = getData(fullFilePath2);
 
-  const data1 = parse(fs.readFileSync(fullFilePath1, 'utf-8'), extractFormat(fullFilePath1));
-  const data2 = parse(fs.readFileSync(fullFilePath2, 'utf-8'), extractFormat(fullFilePath1));
-
-  const arr = _.union(Object.keys(data1), Object.keys(data2));
-  arr.sort();
-
-  const result = arr.map((item) => {
-    if (!_.has(data1, item)) return _.has(data2, item) ? ` + ${item}: ${data2[item]}\n` : '';
-    if (!_.has(data2, item)) return _.has(data1, item) ? ` - ${item}: ${data1[item]}\n` : '';
-    if (_.has(data1, item) && _.has(data2, item)) {
-      if (data1[item] !== data2[item]) {
-        return ` - ${item}: ${data1[item]}\n + ${item}: ${data2[item]}\n`;
-      }
-      return `   ${item}: ${data1[item]}\n`;
-    }
-    return '';
-  });
-  const start = '{\n';
-  const end = '}';
-  return `${start}${result.join('')}${end}`;
+  const tree = buildTree(data1, data2);
+  return stylish(tree);
 };
 export default gendiff;
