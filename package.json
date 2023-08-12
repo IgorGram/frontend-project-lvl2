@@ -1,7 +1,7 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "[![Actions Status](https://github.com/IgorGram/frontend-project-lvl2/workflows/hexlet-check/badge.svg)](https://github.com/IgorGram/frontend-project-lvl2/actions)",
+  "description": "Программа, определяющая разницу между двумя структурами данных.",
   "main": "index.js",
   "type": "module",
   "scripts": {
